@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>刪除</title>
+    <link rel="stylesheet" type="text/css" href="../css/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/zTreeStyle.css">
+
+    <!--引入JS-->
+    <script type="text/javascript" src="../js/assemble/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../js/assemble/webuploader.js"></script>
+    <script type="text/javascript" src="../js/assemble/bootstrap.js"></script>
+    <script type="text/javascript" src="../js/assemble/jquery.ztree.all.js"></script>
+    <script type="text/javascript" src="../js/assemble/jquery.ztree.exhide.js"></script>
+    <script type="text/javascript" src="../js/queryAndDelete.js"></script>
+
+    <style type="text/css">
+        .upload_containner{
+            width: 70%;
+            margin: 10px;
+            padding-left: 30px;
+            flex: 7;
+        }
+        .demo_title{
+            text-align: center;
+        }
+        .uploader-list{
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        #thelist{
+            /*width: 70%;*/
+            overflow-y:auto;
+            height:220px;
+            border: 1px solid gray;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .btn.btn-default{
+            position: inherit;
+            width: 94px; height: 41px; overflow: hidden; bottom: auto; right: auto;
+        }
+
+        .del_file_button{
+            float:left;
+        }
+
+        .input_margin{
+            margin:5px;
+            width: 160px;
+        }
+        .input_illustr{
+            width: 40%;
+            display: inline-block;
+        }
+        .input_illustr select {
+            min-height: 30px;
+        }
+        #hostIp {
+            margin: 5px;
+            width: 160px;
+        }
+        .flie_path_clz {
+            margin-top: -10px;
+            margin-bottom: -5px;
+        }
+        .flie_path_clz label{
+            margin-bottom: 2px;
+        }
+        #file_path_list dd{
+            margin-bottom: 0px;
+        }
+        #file_path_list dl{
+            margin-bottom: 10px;
+        }
+        div#rMenu {font-size:12px; position:absolute; visibility:hidden; top:0; text-align: left;padding:4px;}
+        div#rMenu a{
+            padding: 3px 15px 3px 15px;
+            background-color:#cad4e6;
+            vertical-align:middle;
+        }
+        .ztree li span.button.switch {
+            display: none;
+        }
+        .upload_show {
+            flex: 3;
+            border: 1px solid gray;
+            padding: 20px;
+            margin: 20px;
+            margin-top: 100px;
+            font-size: 14px;
+            overflow-y: auto;
+            visibility:hidden;
+        }
+        .btn-primary {
+            color: #fff;
+            background: #00b7ee;
+            border-color: #00b7ee;
+        }
+
+        .btn-primary:hover {
+            color: #fff;
+            background: #00b7ee;
+            border-color: #00b7ee;
+        }
+        .webuploader-pick {
+            padding: 1px 1px;
+        }
+    </style>
+</head>
+
+
+<body>
+<div style="display: flex">
+
+
+    <div class="upload_containner">
+        <!--<div id="ipContainer">-->
+            <!--<lable>上传服务器:</lable>-->
+            <!--<select id="hostIp">-->
+                <!--<option value="0" selected>请选择</option>-->
+                <!--<option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>-->
+            <!--</select>-->
+        <!--</div>-->
+        <div id="file_path_list">
+            <dl>
+                <dd>
+                    <div class="input_illustr">
+                        <lable>上传服务器:</lable>
+                        <select id="hostIp">
+                            <option value="0" selected>请选择</option>
+                            <option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>
+                        </select>
+                    </div>
+                    <div class="input_illustr">
+                        <lable>文件夹目录:</lable>
+                        <input id="selectTmp" class="input_margin" disabled>
+                        <select th:each="hostList:${sendHostList}" th:id="${hostList.hostName }" style="display: none;width:160px;margin: 5px;">
+                            <option value="0" selected>请选择</option>
+                            <option th:each="path:${hostList.filePath}" th:value="${path.key}" th:text="${path.value}"></option>
+                        </select>
+                        <input id="fileDir" name="fileDir" th:value="${sendFilePath1}" style="display: none">
+                    </div>
+                </dd>
+                <dd>
+
+                    <div class="input_illustr" id="custNoInfo">
+                        <lable>客户三位码:</lable>
+                        <input id="custNo" name="custNo" class="input_margin">
+                    </div>
+                    <div class="input_illustr">
+                        <lable>芯&nbsp;片&nbsp;型&nbsp;号:</lable>
+                        <input id="chipVersion" name="chipVersion" class="input_margin">
+                    </div>
+                </dd>
+                <dd>
+
+                    <div class="input_illustr">
+                        <lable>批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;号&nbsp;:</lable>
+                        <input id="batchNo" name="batchNo" class="input_margin">
+                    </div>
+                    <div id="queryBtn" class="btn btn-primary">文件查询</div>
+                </dd>
+
+            </dl>
+            <div class="flie_path_clz">
+                <label id="filePath"></label>
+            </div>
+        </div>
+        <div id="queryer" >
+            <div id="thelist" class="uploader-list">
+                <div>
+                    <ul id="fileTreeList" class="ztree"></ul>
+                </div>
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel">
+                                    请输入文件夹名
+                                </h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input id="newDirName" value="新建文件夹">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                </button>
+                                <button id="addDir" type="button" class="btn btn-primary">
+                                    确定
+                                </button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="uploader_list" class="upload_show">
+        <div id="uploader_pick"></div>
+        <div>
+            <div id="successNum" style="display: none;font-weight:bold;"></div>
+            <div id="failNum" style="display: none;font-weight:bold;color:red"></div>
+        </div>
+    </div>
+
+    <div id="rMenu" class="treeRightMenu">
+        <a href="#" id="m_upload" class="list-group-item">上传</a>
+        <a href="#" id="m_del" class="list-group-item">删除</a>
+        <a href="#" id="m_create" class="list-group-item">新建</a>
+        <a href="#" id="m_refresh" class="list-group-item">刷新</a>
+    </div>
+
+
+</div>
+
+</body>
+
+<script type="text/javascript">
+    function changeSelect(){
+        if ($("#ftpIddr").val() == 1) {
+            $("#file_dir0").hide();
+            $("#custNoInfo").hide();
+            $("#lotInfo").hide();
+            $("#file_dir1").show();
+        } else {
+            $("#file_dir0").show();
+            $("#custNoInfo").show();
+            $("#lotInfo").show();
+            $("#file_dir1").hide();
+        };
+    }
+</script>
+</html>

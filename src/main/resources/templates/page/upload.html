@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>上传</title>
+    <link rel="stylesheet" type="text/css" href="../css/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/zTreeStyle.css">
+
+    <!--引入JS-->
+    <script type="text/javascript" src="../js/assemble/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../js/assemble/webuploader.js"></script>
+    <script type="text/javascript" src="../js/assemble/bootstrap.js"></script>
+    <script type="text/javascript" src="../js/assemble/jquery.ztree.all.js"></script>
+    <script type="text/javascript" src="../js/assemble/jquery.ztree.exhide.js"></script>
+    <script type="text/javascript" src="../js/upload.js"></script>
+
+    <style type="text/css">
+        .upload_containner{
+            width: 70%;
+            margin: 10px;
+            padding-left: 30px;
+        }
+        .demo_title{
+            text-align: center;
+        }
+        .itemDel, .itemStop, .itemUpload{
+            margin-left: 15px;
+            color: blue;
+            cursor: pointer;
+        }
+        .uploader-list{
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        #thelist{
+            /*width: 70%;*/
+            overflow-y:auto;
+            height:220px;
+            border: 1px solid gray;
+            padding: 10px;
+            font-size: 14px;
+        }
+        #thelist .itemStop{
+            display: none;
+        }
+
+        .btn.btn-default{
+            position: inherit;
+            width: 94px; height: 41px; overflow: hidden; bottom: auto; right: auto;
+        }
+
+        .del_file_button{
+            float:left;
+        }
+
+        .input_margin{
+            margin:5px;
+        }
+        .input_illustr{
+            width: 40%;
+            display: inline-block;
+        }
+        .flie_path_clz {
+            margin-top: -10px;
+            margin-bottom: -5px;
+        }
+        .flie_path_clz label{
+            margin-bottom: 2px;
+        }
+        #file_path_list dd{
+            margin-bottom: 0px;
+        }
+        #file_path_list dl{
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+<div >
+
+
+    <div class="upload_containner">
+        <div id="ipContainer">
+            <lable>上传服务器:</lable>
+            <select id="hostIp">
+                <option value="0" selected>请选择</option>
+                <option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>
+            </select>
+        </div>
+        <div id="file_path_list">
+            <dl>
+                <dd>
+                    <div class="input_illustr">
+                        <lable>文件夹目录:</lable>
+                        <input id="selectTmp" disabled>
+                        <select th:each="hostList:${sendHostList}" th:id="${hostList.hostName}" style="display: none;width:185px">
+                            <option value="0" selected>请选择</option>
+                            <option th:each="path:${hostList.filePath}" th:value="${path.key}" th:text="${path.value}"></option>
+                        </select>
+                        <input id="fileDir" name="fileDir" th:value="${sendFilePath1}" style="display: none">
+                    </div>
+                    <div class="input_illustr" id="custNoInfo">
+                        <lable>客户三位码:</lable>
+                        <input id="custNo" name="custNo" class="input_margin">
+                    </div>
+
+                </dd>
+                <dd id="lotInfo">
+                    <div class="input_illustr">
+                        <lable>芯&nbsp;片&nbsp;型&nbsp;号:</lable>
+                        <input id="chipVersion" name="chipVersion" class="input_margin">
+                    </div>
+                    <div class="input_illustr">
+                        <lable>批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;号&nbsp;:</lable>
+                        <input id="batchNo" name="batchNo" class="input_margin">
+                    </div>
+
+                </dd>
+            </dl>
+            <div class="flie_path_clz">
+                <label id="filePath"></label>
+            </div>
+        </div>
+        <div id="uploader" class="wu-example">
+            <div id="thelist" class="uploader-list"></div>
+            <div class="btns">
+                <div id="picker">选择文件</div>
+                <button id="ctlBtn" class="btn btn-default">开始上传</button>
+                <!--<input id="queryBtn" type="button" class="btn btn-default" value="查询">-->
+            </div>
+            <div>
+                <div id="successNum" style="display: none;font-weight:bold;"></div>
+                <div id="failNum" style="display: none;font-weight:bold;color:red"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+<script type="text/javascript">
+    function changeSelect(){
+        if ($("#ftpIddr").val() == 1) {
+            $("#file_dir0").hide();
+            $("#custNoInfo").hide();
+            $("#lotInfo").hide();
+            $("#file_dir1").show();
+        } else {
+            $("#file_dir0").show();
+            $("#custNoInfo").show();
+            $("#lotInfo").show();
+            $("#file_dir1").hide();
+        };
+    }
+</script>
+</html>
