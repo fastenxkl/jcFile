@@ -134,11 +134,11 @@
                             <option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>
                         </select>
                     </div>
-                    <div class="input_illustr">
+                    <div class="input_illustr" style="display: none">
                         <lable>文件夹目录:</lable>
                         <input id="selectTmp" class="input_margin" disabled>
                         <select th:each="hostList:${sendHostList}" th:id="${hostList.hostName }" style="display: none;width:160px;margin: 5px;">
-                            <option value="0" selected>请选择</option>
+                            <option value="0" selected>/</option>
                             <option th:each="path:${hostList.filePath}" th:value="${path.key}" th:text="${path.value}"></option>
                         </select>
                         <input id="fileDir" name="fileDir" th:value="${sendFilePath1}" style="display: none">

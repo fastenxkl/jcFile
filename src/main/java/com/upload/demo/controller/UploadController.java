@@ -1,5 +1,5 @@
 /**
- * Copyright (C), 2015-2018, XXX有限公司
+ * Copyright (C), 2015-2018, jcet
  * FileName: UploadController
  * Author:   00056929
  * Date:     2018/9/25 16:03
@@ -12,10 +12,12 @@ package com.upload.demo.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.upload.demo.biz.UserService;
 import com.upload.demo.entity.FileEntity;
 import com.upload.demo.entity.HostEntity;
 import com.upload.demo.entity.UserEntity;
 import com.upload.demo.entity.ZtreeNodeEntity;
+import com.upload.demo.util.DigestUtil;
 import com.upload.demo.util.FtpUtils;
 import com.upload.demo.util.SmbFileUtil;
 import jcifs.smb.SmbException;
@@ -55,24 +57,16 @@ import static com.upload.demo.util.CopyFileUtil.MESSAGE;
 @SpringBootConfiguration
 public class UploadController {
 
-    private static Logger logger=Logger.getLogger(UploadController.class);
-    private File file;
+    private Logger logger=Logger.getLogger(UploadController.class);
 
-    private String fileFileName;
-    private String chunk; // 当前第几个分片
-    private String chunks;// 总分片个数
-    private String size;// 单个文件的总大小
-
-    private String custNo;
     @Autowired
     private UserEntity userEntity;
-
     @Autowired
     private Environment environment;
-
     @Autowired
     private FileEntity fileEntity;
-
+    @Autowired
+    private UserService userService;
 
     //ftp信息
     private List<HostEntity> sendHostList;
@@ -113,15 +107,19 @@ public class UploadController {
 
     @RequestMapping(value = "/checkUser",produces = {"application/json;charset=utf-8"})
     public void checkUser(HttpServletRequest request,HttpServletResponse response) throws IOException {
-        Map para = new HashMap();
         Map resultMap = new HashMap();
         String userName = String.valueOf(request.getParameter("userName"));
         String password = String.valueOf(request.getParameter("password"));
-        if (!userName.equals("admin")) {
+        UserEntity userEntity = userService.searchUserByNo(userName);
+
+        if (userEntity == null) {
             resultMap.put("errorMsg", "用戶不存在");
-        } else if (!password.equals("123456")) {
-            resultMap.put("errorMsg", userName + "用户名或者密码不正确");
+        } else {
+            if (!password.equals(DigestUtil.passwordDeEncrypt(userEntity.getPassword()))) {
+                resultMap.put("errorMsg", "用户名或者密码不正确");
+            }
         }
+
         response.setCharacterEncoding("utf-8");
         response.setContentType("text/html; charset=utf-8");
         response.getWriter().write(JSON.toJSONString(resultMap));
@@ -171,14 +169,14 @@ public class UploadController {
         }
         //初始化ftp
         FtpUtils ftpUtils = new FtpUtils(hostEntity.getHostName(), new Integer(hostEntity.getPort()), hostEntity.getUserName(), hostEntity.getPassword());
-        String ftpParentPath = "";
+        String ftpParentPath ;
         FtpUtils targetFtpUtils = new FtpUtils(targetHostName, targetPort, targetUserName, targetPassword);
-        String targetFtpParentPath = "";
+        String targetFtpParentPath;
         //TODO
         if (path.indexOf("//") > -1) {
             ftpParentPath = path.substring(path.indexOf("//")+1,path.length());
         } else {
-            ftpParentPath = fileDir + "/"  + custNo +
+            ftpParentPath = custNo +
                     "/"  + chipVersion + "/"  + batchNo;
         }
 
@@ -193,17 +191,22 @@ public class UploadController {
                 try {
                     String url = "smb://" + hostEntity.getUserName() + ":" + hostEntity.getPassword() + "@" + hostEntity.getHostName() + "/" + ftpParentPath;
                     SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(url);
+                    logger.info("开始ftp上传文件：" + fileName + " ,上传路径为：" + targetFtpParentPath);
+                    targetFtpUtils.uploadFile(targetFtpParentPath,fileName,fileUploads[i].getInputStream());
+                    logger.info("开始共享文件夹" + hostEntity.getHostName() +"上传：" + fileName + " ,上传路径为：" + ftpParentPath);
                     smbFileUtil.uploadFile(fileName,new BufferedInputStream(fileUploads[i].getInputStream()));
 //                    ftpUtils.uploadFile(ftpParentPath,fileName,fileUploads[i].getInputStream());
-                    targetFtpUtils.uploadFile(targetFtpParentPath,fileName,fileUploads[i].getInputStream());
+                    logger.info("ftp上传、共享文件夹上传成功");
                     map1.put("fileState","success");
                 } catch (IOException e) {
                     e.printStackTrace();
+                    logger.info("ftp上传、共享文件夹上传失败");
                     map1.put("fileState","failed");
                     map1.put("message","上传异常");
                 }
             }
         }
+        response.setCharacterEncoding("utf-8");
         response.getWriter().write(JSONObject.toJSONString(map1));
         return null;
 
@@ -222,31 +225,47 @@ public class UploadController {
 
     @RequestMapping("/deleteFiles")
     public String deleteFiles(@RequestParam(value = "filePathList[]", required = false) List<String> filePathList,
+                              @RequestParam(value = "fileNameList[]", required = false) List<String> fileNameList,
+                              @RequestParam(value = "ftpPath", required = false) String ftpPath,
                                 HttpServletRequest requests, HttpServletResponse response) throws IOException {
         SmbFile smbFile = null;
+        FtpUtils ftpUtils = new FtpUtils(targetHostName, targetPort, targetUserName, targetPassword);
         int deleteNum = 0;
         Map<String,String> map = new HashMap<>();
         try {
         for (int i=0;i < filePathList.size(); i++) {
-            smbFile = new SmbFile(filePathList.get(i));
-            if(smbFile.exists()){
-                smbFile.delete();
-                System.out.println(filePathList.get(i) + "删除文件成功！");
-                deleteNum ++;
+            logger.info("开始删除ftp" + targetHostName +"目录：" + targetFilePath + ftpPath +"下文件");
+            boolean ftpFileDelState = ftpUtils.deleteFile(targetFilePath + ftpPath,fileNameList.get(i));
+            if (ftpFileDelState) {
+                logger.info("开始删除共享文件夹文件：" + filePathList.get(i));
+                smbFile = new SmbFile(filePathList.get(i));
+                if(smbFile.exists()){
+                    smbFile.delete();
+                    logger.info(filePathList.get(i) + "删除文件成功！");
+                    deleteNum ++;
+                }
+            } else {
+                logger.info("ftp目录" + targetFilePath + ftpPath +"不存在该文件，或目录不正确，请确认！");
+                map.put("error","ftp目录" + targetFilePath + ftpPath +"不存在该文件，或目录不正确，请确认！");
             }
+
+
         }
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            logger.error("删除异常");
             map.put("error","删除异常");
         } catch (SmbException e) {
             e.printStackTrace();
+            logger.error("删除异常");
             map.put("error","删除异常");
         }
         if (deleteNum == filePathList.size()) {
-            map.put("success","you have success deleted " + deleteNum + " file(s)!!！");
+            map.put("success","成功删除" + deleteNum + "个文件");
 //        } else {
 //            map.put("message");
         }
+        response.setCharacterEncoding("utf-8");
         response.getWriter().write(JSONObject.toJSONString(map));
         return null;
     }
@@ -385,24 +404,6 @@ public class UploadController {
     /***
      * 获取xml中ftp参数
      */
-    /**
-     public void getFtpParam(){
-        sendHostName = environment.getProperty("send.hostName");
-        sendPort = Integer.valueOf(environment.getProperty("send.port"));
-        sendUserName = environment.getProperty("send.userName");
-        sendPassword = environment.getProperty("send.password");
-
-        sendFilePath = new HashMap();
-        for (int i = 1; i <= new Integer(environment.getProperty("send.filePath.max")); i++) {
-            sendFilePath.put(i,environment.getProperty("send.filePath." + i));
-        }
-        targetHostName = environment.getProperty("target.hostName");
-        targetPort = Integer.valueOf(environment.getProperty("target.port"));
-        targetUserName = environment.getProperty("target.userName");
-        targetPassword = environment.getProperty("target.password");
-        targetFilePath = environment.getProperty("target.filePath");
-    }
-     */
 
     public void getFtpParam() {
         sendHostList = new ArrayList<>();
@@ -458,9 +459,8 @@ public class UploadController {
                     ztreeNodeEntityTmp.setParent(false);
                     ztreeNodeEntityTmp.setName(smbFileTemp.getName());
                     ztreeNodeEntityList.add(ztreeNodeEntityTmp);
-                    System.out.println(smbFileTemp.getPath());
+                    logger.info("查询路径：" + smbFileTemp.getUncPath());
                 }
-
             }
             ztreeNodeEntity.setChildren(ztreeNodeEntityList);
         } catch (SmbException e) {
@@ -474,9 +474,6 @@ public class UploadController {
 
     public ZtreeNodeEntity getDir(@RequestParam(value = "hostIp") String hostIp,
                                   @RequestParam(value = "path") String path) throws MalformedURLException, SmbException {
-//        path = "smb://mp:cd890890@172.17.255.93//mapping/test/";
-
-//        path = "smb://" + sendUserName + ":" + sendPassword + "@" + sendHostName + "/" +path +"/";
         HostEntity hostEntity = new HostEntity();
         for (int i=0;i<sendHostList.size();i++) {
             if (sendHostList.get(i).getHostName().equals(hostIp)) {
@@ -497,14 +494,12 @@ public class UploadController {
         if (smbFileParent.isDirectory()){
             ztreeNodeEntity.setFileFlag(false);
             ztreeNodeEntity.setName(smbFileParent.getUncPath());
-//            ztreeNodeEntity.setName(smbFileParent.getName().substring(0,smbFileParent.getName().length()-1));
         } else {
             ztreeNodeEntity.setFileFlag(true);
             ztreeNodeEntity.setName(smbFileParent.getName());
         }
         ztreeNodeEntity.setParent(true);
         findDir(ztreeNodeEntity, smbFileParent);
-        System.out.println(ztreeNodeEntity.toString());
         return ztreeNodeEntity;
     }
 
@@ -538,8 +533,10 @@ public class UploadController {
         SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(url);
         boolean createState = smbFileUtil.makeDir();
         if (createState) {
+            logger.info(hostIp + "文件夹 \""+fileName+"\" 创建成功！");
             map.put("success","文件夹 \""+fileName+"\" 创建成功！");
         } else {
+            logger.info(hostIp +"文件夹 \""+fileName+"\" 创建失败！");
             map.put("message","文件夹 \""+fileName+"\" 创建失败！");
         }
         response.setCharacterEncoding("UTF-8");

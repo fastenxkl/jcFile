@@ -137,7 +137,6 @@ jQuery(function() {
     };
 
     var analyzeData = function (dataTmp,directoryFlag) {
-
         var obj = {"id":dataTmp.id,"pId":dataTmp.pid,"name":dataTmp.name,"path":dataTmp.path,"flieFlag":dataTmp.fileFlag,"open":dataTmp.parent,isParent:dataTmp.parent};
 
         if (obj.pId == null) {
@@ -152,7 +151,9 @@ jQuery(function() {
                 for (var i=0;i<dataTmp.children.length;i++){
                     var datasTmp = dataTmp.children[i];
                     //TODO
-                    analyzeData(datasTmp,directoryFlag);
+                    if(datasTmp.name.substr(datasTmp.name.length -1 ) != "$") {
+                        analyzeData(datasTmp,directoryFlag);
+                    }
                 }
             }
 
@@ -179,7 +180,7 @@ jQuery(function() {
                 zNodes = [];
                 var dataTmp = data;
                 if (data.children == null) {
-                    alert("查无此路径，请确认！")
+                    alert("查无此路径，请联系管理员！")
                 }
                 analyzeData(dataTmp,directoryFlag);
                 if (zNodes.length <=1) {
@@ -219,10 +220,11 @@ jQuery(function() {
     var delFileAjaxFn = function (urlParam,dataTmp) {
         // alert(dataTmp[0].name + "被袁敏超吃了！略略略……");
         var filePathList = [];
-        fileDir = $("#"+ selectHostForJs + " option:selected").text() + "/" + $("#custNo").val() + "/" + $("#chipVersion").val() + "/" + $("#batchNo").val();
+        var fileNameList = [];
         if (dataTmp.length > 0) {
             for (var i=0; i<dataTmp.length;i++) {
                 filePathList.push(dataTmp[i].path);
+                fileNameList.push(dataTmp[i].name);
             }
         }
         $.ajax({
@@ -231,10 +233,16 @@ jQuery(function() {
             dataType: "json",
             async: false,
             data: {
-                "filePathList": filePathList
+                "filePathList": filePathList,
+                "fileNameList": fileNameList,
+                "ftpPath": "/" + $("#custNo").val() + "/" + $("#chipVersion").val() + "/" +$("#batchNo").val(),
             },
             success: function (data) {
-                alert(data.success);
+                if (data.success) {
+                    alert(data.success);
+                } else {
+                    alert(data.error);
+                }
                 queryFileAjax("queryFile",$("#filePath").text(),false,"fileTreeList");
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -260,15 +268,17 @@ jQuery(function() {
     }
 
     var showFileDirFn = function() {
+        selectHost = $("#hostIp option:selected").text();
         if (selectHost == "请选择" || selectHost =="") {
             alert("请选择上传ftp服务器！");
             return;
         } else {
-            pathDir = $("#"+ selectHostForJs + " option:selected").val();
+            // pathDir = $("#"+ selectHostForJs + " option:selected").val();
+            pathDir = "/";
         }
-        fileDir = $("#"+ selectHostForJs + " option:selected").text() + "/" + $("#custNo").val() + "/" + $("#chipVersion").val() + "/" + $("#batchNo").val();
+        // fileDir = $("#"+ selectHostForJs + " option:selected").text() + pathDir + $("#custNo").val() + "/" + $("#chipVersion").val() + "/" + $("#batchNo").val();
         fileIp = $("#hostIp option:selected").text();
-        $("#filePath").text(fileIp + "/" + fileDir );
+        $("#filePath").text(fileIp + "/" );
         $("#successNum").text("");
         $("#failNum").text("");
     }
@@ -295,7 +305,7 @@ jQuery(function() {
             alert("批次号不能为空！");
             return;
         }
-        queryFileAjax("queryFile",fileDir,false,"fileTreeList");
+        queryFileAjax("queryFile","/",false,"fileTreeList");
     };
 
 
@@ -467,7 +477,7 @@ jQuery(function() {
         data.custNo = $("#custNo").val(),//$("#custNo").val()
         data.chipVersion = $("#chipVersion").val(),//$("#custNo").val()
         data.batchNo = $("#batchNo").val()//$("#custNo").val()
-        data.fileDir = $("#"+ selectHostForJs + " option:selected").text()//$("#fileDir").val()
+        data.fileDir = ""//$("#fileDir").val()
         data.selectHost = $("#hostIp option:selected").text();
         data.path = $("#filePath").text();
     };
@@ -501,7 +511,7 @@ jQuery(function() {
 
     var init = function(){
         uploaderLoad();
-        $("#hostIp").on('change',hostChangeFn);
+        // $("#hostIp").on('change',hostChangeFn);
         $("#queryBtn").on( 'click', btnClickFn);
         $("#dellBtn").on('click',delFileFn);
         $("#m_upload").on('click',m_upload);
@@ -512,9 +522,9 @@ jQuery(function() {
         $("#newDirName").on('keyup',keyupFn);
 
         
-        $("#" + selectHostForJs).on('change',function() {
-            $("#fileDir").val($("#"+ selectHostForJs + " option:selected").text());
-        })
+        // $("#" + selectHostForJs).on('change',function() {
+        //     $("#fileDir").val($("#"+ selectHostForJs + " option:selected").text());
+        // })
 
     }
     init();

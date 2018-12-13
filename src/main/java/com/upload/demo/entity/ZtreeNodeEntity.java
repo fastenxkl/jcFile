@@ -95,18 +95,18 @@ public class ZtreeNodeEntity {
         this.fileFlag = fileFlag;
     }
 
-    @Override
-    public String toString() {
-        return "ZtreeNodeEntity{" +
-                "id='" + id + '\'' +
-                ", pid='" + pid + '\'' +
-                ", name='" + name + '\'' +
-                ", path='" + path + '\'' +
-                ", parent=" + parent +
-                ", fileFlag=" + fileFlag +
-                ", nodeLev=" + nodeLev +
-                ", size=" + size +
-                ", children=" + children +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "ZtreeNodeEntity{" +
+//                "id='" + id + '\'' +
+//                ", pid='" + pid + '\'' +
+//                ", name='" + name + '\'' +
+//                ", path='" + path + '\'' +
+//                ", parent=" + parent +
+//                ", fileFlag=" + fileFlag +
+//                ", nodeLev=" + nodeLev +
+//                ", size=" + size +
+//                ", children=" + children +
+//                '}';
+//    }
 }

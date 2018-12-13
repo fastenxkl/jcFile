@@ -1,6 +1,7 @@
 package com.upload.demo;
 
 import com.upload.demo.controller.UploadController;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import javax.servlet.MultipartConfigElement;
 /*
 @EnableAutoConfiguration*/
 @Configuration
+@MapperScan(value = "com.upload.demo.dao")
 public class DemoApplication {
 
 
