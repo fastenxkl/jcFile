@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upload.demo.dao.UserDaoMapper">
+    <resultMap id="BaseResultMap" type="com.upload.demo.entity.UserEntity">
+        <id column="ID" jdbcType="VARCHAR" property="id" />
+        <result column="COMPANY_ID" jdbcType="VARCHAR" property="companyId" />
+        <result column="OFFICE_ID" jdbcType="VARCHAR" property="officeId" />
+        <result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+        <result column="PASSWORD" jdbcType="VARCHAR" property="password" />
+        <result column="NO" jdbcType="VARCHAR" property="no" />
+        <result column="NAME" jdbcType="OTHER" property="name" />
+        <result column="EMAIL" jdbcType="OTHER" property="email" />
+        <result column="PHONE" jdbcType="VARCHAR" property="phone" />
+        <result column="MOBILE" jdbcType="VARCHAR" property="mobile" />
+        <result column="USER_TYPE" jdbcType="CHAR" property="userType" />
+        <result column="PHOTO" jdbcType="VARCHAR" property="photo" />
+        <result column="LOGIN_IP" jdbcType="VARCHAR" property="loginIp" />
+        <result column="LOGIN_DATE" jdbcType="TIMESTAMP" property="loginDate" />
+        <result column="LOGIN_FLAG" jdbcType="VARCHAR" property="loginFlag" />
+        <result column="CREATE_BY" jdbcType="VARCHAR" property="createBy" />
+        <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="UPDATE_BY" jdbcType="VARCHAR" property="updateBy" />
+        <result column="UPDATE_DATE" jdbcType="TIMESTAMP" property="updateDate" />
+        <result column="REMARKS" jdbcType="OTHER" property="remarks" />
+        <result column="DEL_FLAG" jdbcType="CHAR" property="delFlag" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    ID, COMPANY_ID, OFFICE_ID, LOGIN_NAME, PASSWORD, NO, NAME, EMAIL, PHONE, MOBILE,
+    USER_TYPE, PHOTO, LOGIN_IP, LOGIN_DATE, LOGIN_FLAG, CREATE_BY, CREATE_DATE, UPDATE_BY,
+    UPDATE_DATE, REMARKS, DEL_FLAG
+  </sql>
+    <select id="searchUserByNo" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where LOGIN_NAME = #{loginName,jdbcType=VARCHAR}
+    </select>
+</mapper>
