@@ -3,8 +3,8 @@ jQuery(function() {
 
     var zNodes =[
         { id:1, pId:0, name:"文件操作", file:"",open:"True"},
-        { id:11, pId:1, name:"上传", file:"upload",open:1},
-        { id:11, pId:1, name:"删除", file:"queryAndDelete",open:1}
+        // { id:11, pId:1, name:"首页", file:"upload",open:1},
+        { id:11, pId:1, name:"操作", file:"queryAndDelete",open:1}
         ];
     var setting = {
         data: {

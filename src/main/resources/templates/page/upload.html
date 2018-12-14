@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>上传</title>
+    <title>首页</title>
     <link rel="stylesheet" type="text/css" href="../css/webuploader.css">
     <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../css/zTreeStyle.css">
@@ -80,64 +80,64 @@
 
 <body>
 <div >
+    <img src="../images/login/oneworld.jpg" style="width: 100%;height: 100%;background-size: cover;">
 
+    <!--<div class="upload_containner">-->
+        <!--<div id="ipContainer">-->
+            <!--<lable>上传服务器:</lable>-->
+            <!--<select id="hostIp">-->
+                <!--<option value="0" selected>请选择</option>-->
+                <!--<option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>-->
+            <!--</select>-->
+        <!--</div>-->
+        <!--<div id="file_path_list">-->
+            <!--<dl>-->
+                <!--<dd>-->
+                    <!--<div class="input_illustr">-->
+                        <!--<lable>文件夹目录:</lable>-->
+                        <!--<input id="selectTmp" disabled>-->
+                        <!--<select th:each="hostList:${sendHostList}" th:id="${hostList.hostName}" style="display: none;width:185px">-->
+                            <!--<option value="0" selected>请选择</option>-->
+                            <!--<option th:each="path:${hostList.filePath}" th:value="${path.key}" th:text="${path.value}"></option>-->
+                        <!--</select>-->
+                        <!--<input id="fileDir" name="fileDir" th:value="${sendFilePath1}" style="display: none">-->
+                    <!--</div>-->
+                    <!--<div class="input_illustr" id="custNoInfo">-->
+                        <!--<lable>客户三位码:</lable>-->
+                        <!--<input id="custNo" name="custNo" class="input_margin">-->
+                    <!--</div>-->
 
-    <div class="upload_containner">
-        <div id="ipContainer">
-            <lable>上传服务器:</lable>
-            <select id="hostIp">
-                <option value="0" selected>请选择</option>
-                <option th:each="host:${sendHostList}" th:value="${host.hostName}" th:text="${host.hostName}"></option>
-            </select>
-        </div>
-        <div id="file_path_list">
-            <dl>
-                <dd>
-                    <div class="input_illustr">
-                        <lable>文件夹目录:</lable>
-                        <input id="selectTmp" disabled>
-                        <select th:each="hostList:${sendHostList}" th:id="${hostList.hostName}" style="display: none;width:185px">
-                            <option value="0" selected>请选择</option>
-                            <option th:each="path:${hostList.filePath}" th:value="${path.key}" th:text="${path.value}"></option>
-                        </select>
-                        <input id="fileDir" name="fileDir" th:value="${sendFilePath1}" style="display: none">
-                    </div>
-                    <div class="input_illustr" id="custNoInfo">
-                        <lable>客户三位码:</lable>
-                        <input id="custNo" name="custNo" class="input_margin">
-                    </div>
+                <!--</dd>-->
+                <!--<dd id="lotInfo">-->
+                    <!--<div class="input_illustr">-->
+                        <!--<lable>芯&nbsp;片&nbsp;型&nbsp;号:</lable>-->
+                        <!--<input id="chipVersion" name="chipVersion" class="input_margin">-->
+                    <!--</div>-->
+                    <!--<div class="input_illustr">-->
+                        <!--<lable>批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;号&nbsp;:</lable>-->
+                        <!--<input id="batchNo" name="batchNo" class="input_margin">-->
+                    <!--</div>-->
 
-                </dd>
-                <dd id="lotInfo">
-                    <div class="input_illustr">
-                        <lable>芯&nbsp;片&nbsp;型&nbsp;号:</lable>
-                        <input id="chipVersion" name="chipVersion" class="input_margin">
-                    </div>
-                    <div class="input_illustr">
-                        <lable>批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;号&nbsp;:</lable>
-                        <input id="batchNo" name="batchNo" class="input_margin">
-                    </div>
+                <!--</dd>-->
+            <!--</dl>-->
+            <!--<div class="flie_path_clz">-->
+                <!--<label id="filePath"></label>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div id="uploader" class="wu-example">-->
+            <!--<div id="thelist" class="uploader-list"></div>-->
+            <!--<div class="btns">-->
+                <!--<div id="picker">选择文件</div>-->
+                <!--<button id="ctlBtn" class="btn btn-default">开始上传</button>-->
+                <!--&lt;!&ndash;<input id="queryBtn" type="button" class="btn btn-default" value="查询">&ndash;&gt;-->
+            <!--</div>-->
+            <!--<div>-->
+                <!--<div id="successNum" style="display: none;font-weight:bold;"></div>-->
+                <!--<div id="failNum" style="display: none;font-weight:bold;color:red"></div>-->
+            <!--</div>-->
+        <!--</div>-->
 
-                </dd>
-            </dl>
-            <div class="flie_path_clz">
-                <label id="filePath"></label>
-            </div>
-        </div>
-        <div id="uploader" class="wu-example">
-            <div id="thelist" class="uploader-list"></div>
-            <div class="btns">
-                <div id="picker">选择文件</div>
-                <button id="ctlBtn" class="btn btn-default">开始上传</button>
-                <!--<input id="queryBtn" type="button" class="btn btn-default" value="查询">-->
-            </div>
-            <div>
-                <div id="successNum" style="display: none;font-weight:bold;"></div>
-                <div id="failNum" style="display: none;font-weight:bold;color:red"></div>
-            </div>
-        </div>
-
-    </div>
+    <!--</div>-->
 
 </div>
 

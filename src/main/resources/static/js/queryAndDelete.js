@@ -315,7 +315,7 @@ jQuery(function() {
         // $("#uploader_pick").css({"visibility":"visible"});
     }
     var m_refresh = function () {
-        alert("执行刷新操作！");
+        // alert("执行刷新操作！");
         var path =$("#filePath").text();
         queryFileAjax("queryFile",path,false,"fileTreeList");
         hideRMenu();
@@ -325,7 +325,7 @@ jQuery(function() {
         $('#myModal').modal('show');
     }
     var m_del = function () {
-        alert("执行删除操作！")
+        // alert("执行删除操作！")
         if(fileList.length > 0) {
             delFileAjaxFn("deleteFiles",fileList);
         } else {
@@ -488,7 +488,8 @@ jQuery(function() {
         uploader = WebUploader.create({
             resize: false,
             swf: '/js/Uploader.swf',
-            server: 'http://localhost:8011/upload/uploadFiles',
+            // server: 'http://localhost:8011/upload/uploadFiles',
+            server: 'http://172.17.253.80:8011/upload/uploadFiles',
             pick: {id:'#m_upload'},
             threads: 20,
             duplicate :true,
