@@ -580,8 +580,8 @@ public class UploadController {
         String replyMessage = "";
         try {
             String methodName= "uploadMapFileFromMes";
-//            String soapaction = environment.getProperty("WAFERMAP_URL");
-            String soapaction = "http://172.17.173.11/autoServer/services/waferMapService?wsdl";
+            String soapaction = environment.getProperty("WAFERMAP_URL");
+//            String soapaction = "http://172.17.173.11/autoServer/services/waferMapService?wsdl";
             logger.info("调用webservice接口：" + soapaction + ",方法：" + methodName);
             org.apache.axis.client.Service service = new org.apache.axis.client.Service();
             Call call = (Call) service.createCall();
