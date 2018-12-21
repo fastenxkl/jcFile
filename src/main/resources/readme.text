@@ -1,3 +1,3 @@
 发布时，需更改 resources\static\js\main.js文件下，文件接收服务端server路径，host为发布服务器，port为设置端口
 cd 到demo.jar 目录下执行如下语句：
-nohup java -jar demo.jar &
+nohup java -jar jcFile.jar &

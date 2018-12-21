@@ -254,7 +254,13 @@ jQuery(function() {
     }
     var delFileFn = function() {
         if(fileList.length > 0) {
-            delFileAjaxFn("deleteFiles",fileList);
+            var deleteSureState = confirm("是否删除所选文件？");
+            if (deleteSureState) {
+                delFileAjaxFn("deleteFiles",fileList);
+            } else {
+                return;
+            }
+
         } else {
             alert("请选择所需删除的文件");
         }
@@ -326,12 +332,18 @@ jQuery(function() {
     }
     var m_del = function () {
         // alert("执行删除操作！")
+        hideRMenu();
         if(fileList.length > 0) {
-            delFileAjaxFn("deleteFiles",fileList);
+            var deleteSureState = confirm("是否删除所选文件？");
+            if (deleteSureState) {
+                delFileAjaxFn("deleteFiles",fileList);
+            } else {
+                return;
+            }
         } else {
             alert("请选择所需删除的文件");
         }
-        hideRMenu();
+        // hideRMenu();
     }
     
     var ajaxCreateDir = function (urlParam,path,fileName) {

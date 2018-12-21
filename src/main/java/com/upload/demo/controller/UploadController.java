@@ -22,6 +22,7 @@ import com.upload.demo.util.FtpUtils;
 import com.upload.demo.util.SmbFileUtil;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import org.apache.axis.client.Call;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -32,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import sun.rmi.runtime.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -82,10 +85,6 @@ public class UploadController {
     @RequestMapping("/login")
     public String login(){
         return "page/login";
-    }
-    @RequestMapping("/test")
-    public String test(){
-        return "page/test";
     }
     @RequestMapping("/main")
     public String toMain(ModelMap model) {
@@ -152,6 +151,7 @@ public class UploadController {
         if (!"".equals(selectHost)) {
             fileEntity.setSelectHost(selectHost);
         }
+        String WAFERMAP_URL = environment.getProperty("WAFERMAP_URL");
         String dataState = "";
         Map<String, Object> map = new HashMap<String, Object>();
         Map<String,String> map1 = new HashMap<>();
@@ -187,21 +187,26 @@ public class UploadController {
         if (fileUploads.length > 0) {
             for (int i=0;i<fileUploads.length;i++){
                 String fileName = fileUploads[i].getOriginalFilename();
-
-                try {
-                    String url = "smb://" + hostEntity.getUserName() + ":" + hostEntity.getPassword() + "@" + hostEntity.getHostName() + "/" + ftpParentPath;
-                    SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(url);
-                    logger.info("开始ftp上传文件：" + fileName + " ,上传路径为：" + targetFtpParentPath);
-                    targetFtpUtils.uploadFile(targetFtpParentPath,fileName,fileUploads[i].getInputStream());
-                    logger.info("开始共享文件夹" + hostEntity.getHostName() +"上传：" + fileName + " ,上传路径为：" + ftpParentPath);
-                    smbFileUtil.uploadFile(fileName,new BufferedInputStream(fileUploads[i].getInputStream()));
+                //调用waferMapService接口判断文件是否已上传过
+                String fileIsNotExist = getUploadMapFileFromMes(fileName,ftpParentPath);
+                if (fileIsNotExist.contains("flag") && fileIsNotExist.contains("Y")) {
+                    try {
+                        String url = "smb://" + hostEntity.getUserName() + ":" + hostEntity.getPassword() + "@" + hostEntity.getHostName() + "/" + ftpParentPath;
+                        SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(url);
+                        logger.info("开始ftp上传文件：" + fileName + " ,上传路径为：" + targetFtpParentPath);
+                        targetFtpUtils.uploadFile(targetFtpParentPath,fileName,fileUploads[i].getInputStream());
+                        logger.info("开始共享文件夹" + hostEntity.getHostName() +"上传：" + fileName + " ,上传路径为：" + ftpParentPath);
+                        smbFileUtil.uploadFile(fileName,new BufferedInputStream(fileUploads[i].getInputStream()));
 //                    ftpUtils.uploadFile(ftpParentPath,fileName,fileUploads[i].getInputStream());
-                    logger.info("ftp上传、共享文件夹上传成功");
-                    map1.put("fileState","success");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    logger.info("ftp上传、共享文件夹上传失败");
-                    map1.put("fileState","failed");
+                        logger.info("ftp上传、共享文件夹上传成功");
+                        map1.put("fileState","success");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        logger.info("ftp上传、共享文件夹上传失败");
+                        map1.put("fileState","failed");
+                        map1.put("message","上传异常");
+                    }
+                } else if(fileIsNotExist.contains("msg")){
                     map1.put("message","上传异常");
                 }
             }
@@ -547,7 +552,6 @@ public class UploadController {
     public static void main(String[] args) throws SmbException, MalformedURLException {
 //        String url = "smb://" + sendUserName + ":" + sendPassword + "@" + sendHostName + "/" + ftpParentPath;
 //        String path = "smb://mp:cd890890@172.17.255.93//mapping/test/";
-        String path = "smb://mp:cd890890@172.17.255.93//mapping/test/1/1/1/1/";
 //        ZtreeNodeEntity ztreeNodeEntity = new ZtreeNodeEntity();
 //        SmbFile smbFileParent = new SmbFile(path);
 //        ztreeNodeEntity.setId(smbFileParent.getUncPath());
@@ -558,9 +562,11 @@ public class UploadController {
 ////        findDir(ztreeNodeEntity, smbFileParent);
 //        System.out.println(ztreeNodeEntity);
 
-        SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(path + "xkl");
-        smbFileUtil.makeDir();
+//        String path = "smb://mp:cd890890@172.17.255.93//mapping/test/1/1/1/1/";
+//        SmbFileUtil smbFileUtil = SmbFileUtil.getInstance(path + "xkl");
+//        smbFileUtil.makeDir();
 
+//        getUploadMapFileFromMes("1999","test");
 
     }
 
@@ -568,4 +574,45 @@ public class UploadController {
     public String toQuery() {
         return "page/queryFile";
     }
+
+    //调用Service接口
+    private String getUploadMapFileFromMes(String waferId, String path) {
+        String replyMessage = "";
+        try {
+            String methodName= "uploadMapFileFromMes";
+//            String soapaction = environment.getProperty("WAFERMAP_URL");
+            String soapaction = "http://172.17.173.11/autoServer/services/waferMapService?wsdl";
+            logger.info("调用webservice接口：" + soapaction + ",方法：" + methodName);
+            org.apache.axis.client.Service service = new org.apache.axis.client.Service();
+            Call call = (Call) service.createCall();
+            call.setTargetEndpointAddress(new java.net.URL(soapaction));
+//            call.setOperationName(methodName);
+            call.setOperationName(new QName(soapaction, methodName));
+            call.addParameter(
+//                    new QName(soapaction, "waferId"), // 设置要传递的参数
+                    new QName(soapaction, "waferId"), // 设置要传递的参数
+                    org.apache.axis.encoding.XMLType.XSD_STRING,
+                    javax.xml.rpc.ParameterMode.IN);
+            call.addParameter(
+//                    new QName(soapaction, "path"), // 设置要传递的参数
+                    new QName(soapaction, "path"), // 设置要传递的参数
+                    org.apache.axis.encoding.XMLType.XSD_STRING,
+                    javax.xml.rpc.ParameterMode.IN);
+
+            //要返回的数据类型（自定义类型）
+//            call.setReturnType(new QName(soapaction,methodName),List.class);
+            call.setReturnType(new QName(soapaction, methodName), String.class);
+            call.setUseSOAPAction(true);
+            call.setSOAPActionURI(soapaction + "/" + methodName);
+            logger.info("入参：waferId=" + waferId + ",path=" + path);
+            Object test = call.invoke(new Object[]{waferId,path});
+            replyMessage = String.valueOf(call.invoke(new Object[]{waferId,path}));
+            logger.info("返回结果replyMessage：" + replyMessage);
+            System.out.println("Finished:\n" + replyMessage);
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
+        return replyMessage;
+    }
+
 }
