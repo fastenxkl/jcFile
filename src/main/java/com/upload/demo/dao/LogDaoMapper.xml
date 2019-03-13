@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upload.demo.dao.LogDaoMapper">
+    <resultMap id="BaseResultMap" type="com.upload.demo.entity.LogEntity">
+        <id column="ID" jdbcType="VARCHAR" property="id" />
+        <result column="id" jdbcType="VARCHAR" property="id" />
+        <result column="userName" jdbcType="VARCHAR" property="userName" />
+        <result column="operation" jdbcType="VARCHAR" property="operation" />
+        <result column="fileName" jdbcType="VARCHAR" property="fileName" />
+        <result column="path" jdbcType="VARCHAR" property="path" />
+        <result column="upload_type" jdbcType="VARCHAR" property="uploadType" />
+        <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
+        <result column="UPLOADTIME" jdbcType="VARCHAR" property="uploadTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    ID, USERNAME, OPERATION, FILENAME, PATH, upload_type, login_ip, uploadTime
+  </sql>
+    <!--<select id="searchUserByNo" resultMap="BaseResultMap" parameterType="java.lang.String">-->
+        <!--select-->
+        <!--<include refid="Base_Column_List"/>-->
+        <!--from jc_file_log-->
+        <!--where LOGIN_NAME = #{loginName,jdbcType=VARCHAR}-->
+    <!--</select>-->
+    <insert id="insertLog" parameterType="com.upload.demo.entity.LogEntity">
+        <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
+            select seq_file_log.nextval from dual
+        </selectKey>
+        insert into jc_file_log (ID, USERNAME, OPERATION, FILENAME, PATH,upload_type, login_ip, uploadTime) values(
+        #{id,jdbcType=VARCHAR},#{userName,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR},
+        #{fileName,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR},#{uploadType,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR},#{uploadTime,jdbcType=VARCHAR})
+    </insert>
+
+
+    <select id="getOperationFileCountWeekly" resultType="int" >
+    select count(0)
+    from jc_file_log m
+    where m.uploadtime &lt; #{date}
+    and m.operation= #{operation} and m.upload_type='smb'
+    </select>
+</mapper>

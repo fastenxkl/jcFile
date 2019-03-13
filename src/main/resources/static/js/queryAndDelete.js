@@ -235,7 +235,7 @@ jQuery(function() {
             data: {
                 "filePathList": filePathList,
                 "fileNameList": fileNameList,
-                "ftpPath": "/" + $("#custNo").val() + "/" + $("#chipVersion").val() + "/" +$("#batchNo").val(),
+                "ftpPath": "/" + $("#custNo").val() + "/" + new Date().getFullYear() + "/" + $("#chipVersion").val() + "/" +$("#batchNo").val(),
             },
             success: function (data) {
                 if (data.success) {
@@ -500,8 +500,8 @@ jQuery(function() {
         uploader = WebUploader.create({
             resize: false,
             swf: '/js/Uploader.swf',
-            // server: 'http://localhost:8011/upload/uploadFiles',
-            server: 'http://172.17.253.80:8011/upload/uploadFiles',
+            server: 'http://localhost:8011/upload/uploadFiles',
+            // server: 'http://172.17.253.80:8011/upload/uploadFiles',
             pick: {id:'#m_upload'},
             threads: 20,
             duplicate :true,
